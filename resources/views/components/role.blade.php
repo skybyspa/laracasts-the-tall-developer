@@ -1,30 +1,16 @@
 
 <div 
-    x-data="{bookmarked: {{ $role->isBookmarkedBy(auth()->user()) ? 'true' : 'false' }}}"
     class="mt-8"
 >
     <div class="bg-white p-6 rounded-lg shadow-xs border border-zinc-200">
     <div class="flex flex-row-reverse justify-between items-center">
-        <form 
-            method="post" 
-            @if(!$role->isBookmarkedBy(auth()->user()))
-                action="{{ route('bookmarks.store', $role) }}"
-            @else
-                action="{{ route('bookmarks.destroy', $role) }}"
-            @endif
-        >
-            @csrf
-            @if($role->isBookmarkedBy(auth()->user()))
-                @method('DELETE')
-            @endif
             <button 
-            class=" hover:text-amber-600"
-            :class="bookmarked ? 'text-amber-500' : 'text-zinc-200'"
-            {{-- @click="
-                bookmarked = !bookmarked; 
-                showToast = true;
-                setTimeout(() => showToast = false, 3000);
-                message = bookmarked ? 'Added to bookmarks' : 'Removed from bookmarks'" --}}
+            @class([
+                'hover:text-amber-600',
+                'text-amber-500' => $role->isBookmarkedBy(Auth::user()),
+                'text-zinc-200' => !$role->isBookmarkedBy(Auth::user())
+            ])
+            wire:click = "toggleBookmark({{ $role->id }})"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                     <path fill-rule="evenodd"
