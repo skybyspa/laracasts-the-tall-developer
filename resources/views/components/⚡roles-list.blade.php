@@ -22,11 +22,21 @@ new class extends Component
 
     public function toggleBookmark($role_id)
     {
-        Auth::user()->bookmarkedRoles()->toggle($role_id);
-        if ($this->type == "bookmarked")
+
+        if (Role::find($role_id)->isBookmarkedBy(Auth::user()))
         {
-            $this->roles = Auth::user()->bookmarkedRoles()->get();
+            Auth::user()->bookmarkedRoles()->detach($role_id);
+            $this->dispatch('show-toast', message: 'Removed from bookmarks');
+
         }
+
+        else {
+            Auth::user()->bookmarkedRoles()->attach($role_id);
+            $this->dispatch('show-toast', message: 'Added to bookmarks');
+        }
+
+        $this->updatedSearch();
+
     }
 
     public function updatedSearch()
@@ -62,20 +72,14 @@ new class extends Component
                 wire:model.live.debounce.200ms="search"
         />
 
-        @if($search)
+    @if($search)
         <p class="mt-4 text-sm text-amber-600">
             Showing results for {{  $search }}
         </p>
-        @endif
+    @endif
 
-        @foreach($roles as $role)
-            <x-role :role="$role"></x-role>
-        @endforeach
+    @foreach($roles as $role)
+        <x-role :role="$role" />
+    @endforeach
 
-        <div 
-        x-show="showToast"
-        class="fixed bottom-5 right-5 px-2 py-1 
-            bg-green-100 text-green-800 border-green-200 text-sm shadow rounded"
-        x-text="message">
-    </div>
 </div>
